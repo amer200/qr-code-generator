@@ -25,5 +25,5 @@ app.post("/scan", (req, res) => {
     res.render("scan", { src });
   });
 });
-const port = 5000 || process.env.PORT;
+const port = process.env.PORT;
 app.listen(port, () => console.log("Server at 5000"));
