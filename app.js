@@ -3,6 +3,8 @@ const express = require("express");
 const app = express();
 const bp = require("body-parser");
 const qr = require("qrcode");
+const urlscan = require('urlscan-api');
+const apiKey = process.env.APIKEY;
 app.set("view engine", "ejs");
 app.use(bp.urlencoded({ extended: false }));
 app.use(bp.json());
@@ -26,5 +28,17 @@ app.post("/scan", (req, res) => {
     res.render("scan", { src });
   });
 });
-const port = process.env.PORT;
+app.get('/scan-url/:url', (req, res) => {
+  const url = req.params.url;
+  new urlscan().submit(apiKey, url).then(function (submitoutput) {
+    // res.status(200).send(JSON.stringify(submitoutput, null, 4))
+    console.log(JSON.stringify(submitoutput, null, 4))
+  console.log(url)
+
+  })
+    .catch(err => {
+      console.log(err)
+    })
+})
+const port = process.env.PORT || 5000;
 app.listen(port, () => console.log("Server at 5000"));
