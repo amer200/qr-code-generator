@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const bp = require("body-parser");
 const qr = require("qrcode");
-const urlscan = require('urlscan-api');
+const urlscan = require('gabnews-urlscan');
 const apiKey = process.env.APIKEY;
 app.set("view engine", "ejs");
 app.use(bp.urlencoded({ extended: false }));
@@ -30,14 +30,19 @@ app.post("/scan", (req, res) => {
 });
 app.get('/scan-url/:url', (req, res) => {
   const url = req.params.url;
-  new urlscan().submit(apiKey, url).then(function (submitoutput) {
-    console.log(JSON.stringify(submitoutput, null, 4))
-    console.log(url)
-    // res.status(200).send(JSON.stringify(submitoutput, null, 4))
-  })
-    .catch(err => {
-      console.log(err)
+  var options = {
+    apiKey: apiKey,
+    public: true
+  };
+  var scanner = urlscan(options);
+  scanner
+    .scanUrl(url)
+    .then((result) => {
+      console.log('URL scan result', result);
     })
+    .catch((error) => {
+      console.log('URL scan error', error);
+    });
 })
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log("Server at 5000"));
