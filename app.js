@@ -31,9 +31,9 @@ app.post("/scan", (req, res) => {
 app.get('/scan-url/:url', (req, res) => {
   const url = req.params.url;
   new urlscan().submit(apiKey, url).then(function (submitoutput) {
-    // res.status(200).send(JSON.stringify(submitoutput, null, 4))
+    res.status(200).send(JSON.stringify(submitoutput, null, 4))
     console.log(JSON.stringify(submitoutput, null, 4))
-  console.log(url)
+    console.log(url)
 
   })
     .catch(err => {
