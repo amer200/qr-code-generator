@@ -3,8 +3,9 @@ const express = require("express");
 const app = express();
 const bp = require("body-parser");
 const qr = require("qrcode");
-const urlscan = require('gabnews-urlscan');
-const apiKey = process.env.APIKEY;
+const sdk = require('api')('@virustotal/v3.0#1k2godhyl0v06jsw');
+const axios = require('axios');
+
 app.set("view engine", "ejs");
 app.use(bp.urlencoded({ extended: false }));
 app.use(bp.json());
@@ -30,19 +31,51 @@ app.post("/scan", (req, res) => {
 });
 app.get('/scan-url/:url', (req, res) => {
   const url = req.params.url;
-  var options = {
-    apiKey: apiKey,
-    public: true
+  const encodedParams = new URLSearchParams();
+  encodedParams.set('url', url);
+
+  const options = {
+    method: 'POST',
+    url: 'https://www.virustotal.com/api/v3/urls',
+    headers: {
+      accept: 'application/json',
+      'x-apikey': 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8',
+      'content-type': 'application/x-www-form-urlencoded'
+    },
+    data: encodedParams,
   };
-  var scanner = urlscan(options);
-  scanner
-    .scanUrl(url)
-    .then((result) => {
-      console.log('URL scan result', result);
+
+  axios
+    .request(options)
+    .then(function (response) {
+      return response.data.data
     })
-    .catch((error) => {
-      console.log('URL scan error', error);
+    .then(data => {
+      const id = data.id;
+      const optionsB = {
+        method: 'GET',
+        url: `https://www.virustotal.com/api/v3/urls/${id}`,
+        headers: {
+          accept: 'application/json',
+          'x-apikey': 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8'
+        }
+      };
+      console.log(id)
+      // axios
+      //   .request(optionsB)
+      //   .then(function (response) {
+      //     console.log(response.data);
+      //   })
+    })
+    .catch(function (error) {
+      console.error(error);
     });
+  // sdk.scanUrl({ url: url }, {
+  //   accept: 'application/json',
+  //   'x-apikey': 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8'
+  // })
+  //   .then(res => console.log(res))
+  //   .catch(err => console.error(err));
 })
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log("Server at 5000"));
