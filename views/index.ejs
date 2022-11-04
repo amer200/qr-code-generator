@@ -38,22 +38,26 @@
         <hr>
         <h2>or scan qr code</h2>
         <div style="width: 500px" id="reader"></div>
+        <hr>
+        <p id="scan-result"></p>
     </div>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
         function onScanSuccess(decodedText, decodedResult) {
             // handle the scanned code as you like, for example:
+            const scanResult = document.getElementById('scan-result');
             fetch(`/scan-url/${decodedText}`)
                 .then(res => {
                     return res.json();
                 })
                 .then(data => {
                     console.log(data)
+                    scanResult.innerText = JSON.stringify(data);
                 })
                 .catch(err => {
                     console.log(err)
                 })
-            alert(`Code matched = ${decodedText}`, decodedResult);
+            alert(`Code = ${decodedText}`, decodedResult);
             // console.log(`Code matched = ${decodedText}`, decodedResult);
         }
         function onScanFailure(error) {

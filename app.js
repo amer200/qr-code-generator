@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const bp = require("body-parser");
 const qr = require("qrcode");
-const sdk = require('api')('@virustotal/v2.0#17link2ll7g0lnp7');
+const axios = require('axios');
 
 app.set("view engine", "ejs");
 app.use(bp.urlencoded({ extended: false }));
@@ -30,17 +30,50 @@ app.post("/scan", (req, res) => {
 });
 app.get('/scan-url/:url', (req, res) => {
   const url = req.params.url;
-  sdk.urlReport({
-    apikey: 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8',
-    resource: 'http%3A%2F%2Fwww.google.com%2F',
-    allinfo: 'false',
-    scan: '0'
-  })
-    .then(data => {
-      console.log(data)
-      res.send(data)
+  /******************************************* */
+  const encodedParams = new URLSearchParams();
+  encodedParams.set('apikey', 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8');
+  encodedParams.set('url', url);
+
+  const optionsScan = {
+    method: 'POST',
+    url: 'https://www.virustotal.com/vtapi/v2/url/scan',
+    headers: {
+      accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    data: encodedParams,
+  };
+  /************************************ */
+  axios
+    .request(optionsScan)
+    .then(function (response) {
+      return response.data;
     })
-    .catch(err => console.error(err));
+    .then(data => {
+      const optionsReport = {
+        method: 'GET',
+        url: 'https://www.virustotal.com/vtapi/v2/url/report',
+        params: {
+          apikey: process.env.APIKEY,
+          resource: data.url,
+          allinfo: 'false',
+          scan: '0'
+        },
+        headers: { accept: 'application/json' }
+      };
+      axios
+        .request(optionsReport)
+        .then(function (response) {
+          console.log(response.data);
+          res.send(JSON.stringify(response.data.scans))
+        })
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+
+
 })
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log("Server at 5000"));
