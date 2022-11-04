@@ -3,8 +3,7 @@ const express = require("express");
 const app = express();
 const bp = require("body-parser");
 const qr = require("qrcode");
-const sdk = require('api')('@virustotal/v3.0#1k2godhyl0v06jsw');
-const axios = require('axios');
+const sdk = require('api')('@virustotal/v2.0#17link2ll7g0lnp7');
 
 app.set("view engine", "ejs");
 app.use(bp.urlencoded({ extended: false }));
@@ -31,51 +30,17 @@ app.post("/scan", (req, res) => {
 });
 app.get('/scan-url/:url', (req, res) => {
   const url = req.params.url;
-  const encodedParams = new URLSearchParams();
-  encodedParams.set('url', url);
-
-  const options = {
-    method: 'POST',
-    url: 'https://www.virustotal.com/api/v3/urls',
-    headers: {
-      accept: 'application/json',
-      'x-apikey': 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8',
-      'content-type': 'application/x-www-form-urlencoded'
-    },
-    data: encodedParams,
-  };
-
-  axios
-    .request(options)
-    .then(function (response) {
-      return response.data.data
-    })
+  sdk.urlReport({
+    apikey: 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8',
+    resource: 'http%3A%2F%2Fwww.google.com%2F',
+    allinfo: 'false',
+    scan: '0'
+  })
     .then(data => {
-      const id = data.id;
-      const optionsB = {
-        method: 'GET',
-        url: `https://www.virustotal.com/api/v3/urls/${id}`,
-        headers: {
-          accept: 'application/json',
-          'x-apikey': 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8'
-        }
-      };
-      console.log(id)
-      // axios
-      //   .request(optionsB)
-      //   .then(function (response) {
-      //     console.log(response.data);
-      //   })
+      console.log(data)
+      res.send(data)
     })
-    .catch(function (error) {
-      console.error(error);
-    });
-  // sdk.scanUrl({ url: url }, {
-  //   accept: 'application/json',
-  //   'x-apikey': 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8'
-  // })
-  //   .then(res => console.log(res))
-  //   .catch(err => console.error(err));
+    .catch(err => console.error(err));
 })
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log("Server at 5000"));
