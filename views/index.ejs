@@ -39,10 +39,25 @@
         <h2>or scan qr code</h2>
         <div style="width: 500px" id="reader"></div>
         <hr>
-        <p id="scan-result"></p>
+        <div id="scan-result"></div>
     </div>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
+        const createResult = (data, container) => {
+            const UL = document.createElement('ul');
+            UL.classList = "list-group";
+            for (const prog in data) {
+                const LI = document.createElement('li');
+                LI.classList = 'list-group-item';
+                if (data[prog].detected) {
+                    LI.innerHTML = `<span style="color: blue">${prog}:</span> <span style="color: red">detected: ${data[prog].detected}</span>, <span style="color: red">result: ${data[prog].result}</span>`;
+                } else {
+                    LI.innerHTML = `<span style="color: blue">${prog}:</span> <span style="color: green">detected: ${data[prog].detected}</span>, <span style="color: green">result: ${data[prog].result}</span>`;
+                }
+                UL.appendChild(LI);
+            }
+            container.appendChild(UL)
+        }
         function onScanSuccess(decodedText, decodedResult) {
             // handle the scanned code as you like, for example:
             const scanResult = document.getElementById('scan-result');
@@ -52,7 +67,8 @@
                 })
                 .then(data => {
                     console.log(data)
-                    scanResult.innerText = JSON.stringify(data);
+                    createResult(data, scanResult)
+                    // scanResult.innerText = JSON.stringify(data);
                 })
                 .catch(err => {
                     console.log(err)
