@@ -30,6 +30,7 @@ app.post("/scan", (req, res) => {
 });
 app.get('/scan-url/:url', (req, res) => {
   const url = req.params.url;
+  console.log(url)
   /******************************************* */
   const encodedParams = new URLSearchParams();
   encodedParams.set('apikey', 'fe9991119885a6cd25b157ddf49da18f2460c723b7fff8d2127bbec3d97129a8');

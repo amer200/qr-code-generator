@@ -61,6 +61,7 @@
         function onScanSuccess(decodedText, decodedResult) {
             // handle the scanned code as you like, for example:
             const scanResult = document.getElementById('scan-result');
+            alert(`Code = ${decodedText}`, decodedResult);
             fetch(`/scan-url/${decodedText}`)
                 .then(res => {
                     return res.json();
@@ -73,12 +74,27 @@
                 .catch(err => {
                     console.log(err)
                 })
-            alert(`Code = ${decodedText}`, decodedResult);
             // console.log(`Code matched = ${decodedText}`, decodedResult);
         }
         function onScanFailure(error) {
             // handle scan failure, usually better to ignore and keep scanning.
             // for example:
+            fetch(`/scan-url/${decodedText.split('http://')[1]}`)
+                .then(res => {
+                    if (res.status != 200) {
+                        scanResult.innerHTML = `<span style="color: red">phishing</span>`
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    console.log(data)
+                    createResult(data, scanResult)
+                    // scanResult.innerText = JSON.stringify(data);
+                })
+                .catch(err => {
+                    scanResult.innerHTML = `<span style="color: red">phishing</span>`
+                    console.log(err)
+                })
             console.warn(`Code scan error = ${error}`);
         }
         let html5QrcodeScanner = new Html5QrcodeScanner(
