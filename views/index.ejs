@@ -79,7 +79,13 @@
         function onScanFailure(error) {
             // handle scan failure, usually better to ignore and keep scanning.
             // for example:
-            fetch(`/scan-url/${decodedText.split('http://')[1]}`)
+            let url = decodedText;
+            if (decodedText.includes('http://')) {
+                url = decodedText.split('http://')[1]
+            } else if (decodedText.includes('https://')) {
+                url = decodedText.split('https://')[1]
+            }
+            fetch(`/scan-url/${url}`)
                 .then(res => {
                     if (res.status != 200) {
                         scanResult.innerHTML = `<span style="color: red">phishing</span>`
